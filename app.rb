@@ -38,7 +38,6 @@ put '/publications/:id' do
   # Doing some stuff
   begin
     GoodData.logging_on
-    binding.pry
     GoodData.connect(GD_LOGIN, GD_PASS)
 
     project = GoodData::Model::ProjectCreator.migrate(:spec => model, :token => PROJECT_CREATION_TOKEN)
