@@ -26,6 +26,10 @@ bundle install
 ### Run sinatra web server
 
 ```
-ruby app.rb
+bundle exec rackup -s thin -E production -p 9292 config.ru
+
+load http://localhost:9292/index.html in your browser
+
+call send_hello() in your browser console
 ```
 

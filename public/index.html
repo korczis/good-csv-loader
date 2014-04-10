@@ -30,11 +30,14 @@
         <script src="js/main.js"></script>
         <script type="text/javascript" src="/faye/client.js"></script>
         <script type="text/javascript">
-            var client = new Faye.Client('http://localhost:9292/faye');
-            // window.client = client;
-            var subscription = client.subscribe('/foo', function(message) {
+            var fclient = new Faye.Client('/faye');
+            var subscription = fclient.subscribe('/foo', function(message) {
               alert(message)
             });
+            
+            var send_hello = function(message) {
+              fclient.publish('/foo', {"message" : message || "hello"});
+            };
         </script>
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
