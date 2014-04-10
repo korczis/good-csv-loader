@@ -24,8 +24,11 @@ App.IndexController = Ember.Controller.extend({
   status: null,
   uuid: null,
   files: null,
+  // TODO: Add an observers that automatically checks when email is updated to see if it mataches with the seesion id.
+  email: null,
   init: function(){
-    console.log('here');
+
+    $("#files").hide();
     var subscription = fclient.subscribe('/foo', function(message) {
       alert(JSON.stringify(message));
     });
@@ -49,10 +52,50 @@ App.IndexController = Ember.Controller.extend({
           controller.set('S3', data.upload_files_uri);
           console.log(data);
           $("#startSession").hide(30);
+          $("#swoosh").show(900);
+          $("#files").show();
+          $('.email-notification').modal('show');
         }
       }
+      // NOTE: Make request to server for UUID.
       $.ajax(getUUID);
     },
+    createProject: function() {
+      controller = this;
+      uuid = controller.get('uuid');
+      newProject = {
+        url: '/publications/'+uuid,
+        method: 'POST',
+        error: function(xml, err, status){
+          controller.set('status', err);
+        },
+        success: function(data){
+          console.log(data);
+          controller.set('status', null);
+        }
+      }
+      $.ajax(launchProject);
+    },
+    setEmail: function(){
+      controller = this;
+      email = $('#email').val();
+      if(email.split('@').length < 2){
+          $('.email-notification').modal('show');
+          alert('We do need an email to pair with your project.');
+      } else {
+        $('.email-notification').modal('hide');
+        controller.set('email', email);
+      }
+    },
+    cancel: function() {
+      console.log('POST DATA');
+      uuid = this.get('uuid');
+      this.set('uuid', "CLOSED "+uuid);
+      $("#swoosh").hide(900);
+      $("#files").hide();
+      $("#startSession").show();
+      $("#startSession").html('New Session');
+    }
   }
 
 });
