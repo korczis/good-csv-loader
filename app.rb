@@ -26,7 +26,7 @@ def policy_document(date,uuid)
   }"
 end
 
-aws_secret_key = 'Z56zbD0F/vR88iGN56DnGcOoagadSmKRsjOTHP/e'
+AWS_SECRET_KEY = 'Z56zbD0F/vR88iGN56DnGcOoagadSmKRsjOTHP/e'
 
 S3_ENDPOINT = "https://gcl-data/"
 PROJECT_CREATION_TOKEN = ENV['project_token']
@@ -50,7 +50,7 @@ class SinatraApp < Sinatra::Base
     signature = Base64.encode64(
       OpenSSL::HMAC.digest(
           OpenSSL::Digest::Digest.new('sha1'), 
-          aws_secret_key, policy)
+          AWS_SECRET_KEY, policy)
       ).gsub("\n","")
 
     project_prefix = S3_ENDPOINT + uuid
