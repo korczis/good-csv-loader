@@ -22,3 +22,18 @@ post '/projects' do
     :upload_files_uri => S3_ENDPOINT + uuid
   }.to_json
 end
+
+put '/publications/:id' do
+  uuid = params[:id]
+
+  content_type :json
+  # Doing some stuff
+  sleep 1
+  
+  # if ok
+  content_type :json
+  status 201
+  {
+    :project_uri => "https://secure.gooddata.com/gdc/projects/#{uuid}"
+  }.to_json
+end
