@@ -26,22 +26,43 @@
         <!-- EMBER APPLICATION START -->
 
         <script type="text/x-handlebars">
-          <div class="container">
-            <h2 class="iconic">Good CSV Loader</h2>
-
-            {{outlet}}
+        <div class="navbar-toolbar">
+            <div class="container">
+                <div class="row">
+                    <div class="col-xs-3">
+                        {{#if status}}
+                            <span class="badge badge-danger"> {{status}} </span>
+                        {{/if}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero hero-full hero-bottom">
+            <div class="hero-overlay"></div><div class="hero-text">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2 text-center">
+                        <h1>Good CSV Loader</h1>
+                            <h3 class="lead">A revolution in file management.</h3>
+                            <p>
+                             {{outlet}}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
           </script>
-        
             <script type="text/x-handlebars" id="index">
-                {{#if status}}
-                    <span class="badge badge-primary"> {{status}} </span>
+                <a id="startSession" class="btn btn-inverse" {{action 'requestUUID'}}> Start Session </a>
+                {{#if uuid}}
+                    <span class="badge badge-primary"> {{uuid}} </span>
                 {{/if}}
-                <ul>
+                <ul style="float:left;">
                     {{#each item in content}}
                         <li>{{item}}</li>
                     {{/each}}
                 </ul>
-                <a class="iconic btn btn-md" {{action 'requestUUID'}}> Start Session </a>
             </script>
         </div>
 
@@ -53,16 +74,6 @@
         <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/faye/client.js"></script>
-        <script type="text/javascript">
-            var fclient = new Faye.Client('/faye');
-            var subscription = fclient.subscribe('/foo', function(message) {
-              console.log(JSON.stringify(message));
-            });
-
-            var send_hello = function(message) {
-              fclient.publish('/foo', {"message" : message || "hello"});
-            };
-        </script>
         <script src="js/lib/iconic.min.js"></script>
         <script src="js/lib/handlebars-1.1.2.js"></script>
         <script src="js/lib/ember-1.5.0.js"></script>
