@@ -8,4 +8,4 @@ use Faye::RackAdapter, :mount      => '/faye',
                        :timeout    => 25
 
 use Rack::Static, :urls => ["/css", "/images"], :root => "public"
-run Sinatra::Application
+run SinatraApp

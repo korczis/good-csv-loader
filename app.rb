@@ -32,15 +32,17 @@ S3_ENDPOINT = "https://gcl-data/"
 PROJECT_CREATION_TOKEN = ENV['project_token']
 GD_LOGIN = ENV['gd_login']
 GD_PASS = ENV['gd_pass']
+FAYE_CLIENT = Faye::Client.new("http://localhost:9292/faye")
 
-# Set public folder
-set :public_folder, 'public'
+class SinatraApp < Sinatra::Base
+  # Set public folder
+  set :public_folder, 'public'
 
-# Server root asset
-get '/' do
-  redirect '/index.html'
-end
 
+  # Server root asset
+  get '/' do
+    redirect '/index.html'
+  end
 post '/projects' do
   uuid = SecureRandom::uuid
   policy = Base64.encode64(policy_document("2016-01-01T00:00:00Z",uuid)).gsub("\n","")
@@ -60,24 +62,42 @@ post '/projects' do
   }.to_json
 end
 
-put '/publications/:id' do
-  uuid = params[:id]
-
-  spec = MultiJson.load(open("https://gist.githubusercontent.com/fluke777/10414368/raw/ada044a871f19449ccdd60af9637dede76ae2dd0/json_model.json") {|f| f.read}, :symbolize_keys => true)
-  model = GoodData::Model::ProjectBlueprint.from_json(spec)
-
-  # Doing some stuff
-  begin
-    GoodData.logging_on
-    GoodData.connect(GD_LOGIN, GD_PASS)
-
-    project = GoodData::Model::ProjectCreator.migrate(:spec => model, :token => PROJECT_CREATION_TOKEN)
+  post '/projects' do
+    uuid = SecureRandom::uuid
     content_type :json
     {
-      :project_uri => project.browser_uri
+      :id => uuid,
+      :upload_files_uri => S3_ENDPOINT + uuid
     }.to_json
-  rescue
-    halt 500
+  end
+
+  post "/add_file" do
+    FAYE_CLIENT.publish('/foo', {
+      :file_added => {
+        :name => "x"
+      }
+    })
+  end
+
+  put '/publications/:id' do
+    uuid = params[:id]
+
+    spec = MultiJson.load(open("https://gist.githubusercontent.com/fluke777/10414368/raw/ada044a871f19449ccdd60af9637dede76ae2dd0/json_model.json") {|f| f.read}, :symbolize_keys => true)
+    model = GoodData::Model::ProjectBlueprint.from_json(spec)
+
+    # Doing some stuff
+    begin
+      GoodData.logging_on
+      GoodData.connect(GD_LOGIN, GD_PASS)
+
+      project = GoodData::Model::ProjectCreator.migrate(:spec => model, :token => PROJECT_CREATION_TOKEN)
+      content_type :json
+      {
+        :project_uri => project.browser_uri
+      }.to_json
+    rescue
+      halt 500
+    end
   end
 end
 
