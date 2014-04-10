@@ -33,13 +33,15 @@
           </script>
         
             <script type="text/x-handlebars" id="index">
-                {{status}}
+                {{#if status}}
+                    <span class="badge badge-primary"> {{status}} </span>
+                {{/if}}
                 <ul>
                     {{#each item in content}}
                         <li>{{item}}</li>
                     {{/each}}
                 </ul>
-                <a class="iconic btn btn-sm" {{action 'requestUUID'}}> Start Session </a>
+                <a class="iconic btn btn-md" {{action 'requestUUID'}}> Start Session </a>
             </script>
         </div>
 
@@ -56,7 +58,7 @@
             var subscription = fclient.subscribe('/foo', function(message) {
               console.log(JSON.stringify(message));
             });
-            
+
             var send_hello = function(message) {
               fclient.publish('/foo', {"message" : message || "hello"});
             };
