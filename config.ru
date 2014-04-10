@@ -9,12 +9,5 @@ use Faye::RackAdapter, :mount      => '/faye',
                        # ,
                        # :extensions => [MyExtension.new]
 
-# use Rack::Static, :urls => ["/css", "/images"], :root => "public"
+use Rack::Static, :urls => ["/css", "/images"], :root => "public"
 run Sinatra::Application
-
-# require 'faye'
-# Faye::WebSocket.load_adapter('thin')
-# 
-# app = Faye::RackAdapter.new(:mount => '/faye', :timeout => 25)
-# 
-# run app
