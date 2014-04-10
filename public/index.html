@@ -28,6 +28,14 @@
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
+        <script type="text/javascript" src="/faye/client.js"></script>
+        <script type="text/javascript">
+            var client = new Faye.Client('http://localhost:9292/faye');
+            // window.client = client;
+            var subscription = client.subscribe('/foo', function(message) {
+              alert(message)
+            });
+        </script>
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
         <script>
