@@ -80,3 +80,9 @@ put '/publications/:id' do
     halt 500
   end
 end
+
+
+post '/file_upload' do
+  pp params["filename"]
+  #pp params["body"]["filename"]
+end
