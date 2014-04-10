@@ -31,79 +31,39 @@
                 <div class="row">
                     <div class="col-xs-3">
                         {{#if status}}
-                            <p></p>
-                            <span class="label label-danger"> {{status}} </span>
+                            <span class="badge badge-danger"> {{status}} </span>
                         {{/if}}
                     </div>
                 </div>
             </div>
         </div>
-        <br></br>
         <div class="hero hero-full hero-bottom">
             <div class="hero-overlay"></div><div class="hero-text">
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2 text-center">
-                        <h1 class="brand iconic">Good CSV Loader</h1>
+                        <h1>Good CSV Loader</h1>
                             <h3 class="lead">A revolution in file management.</h3>
                             <p>
                              {{outlet}}
                             </p>
                         </div>
                     </div>
-                      </script>
-                      <div>
-                        <div class="container">
-                                <script type="text/x-handlebars" id="index">
-                                    {{#if uuid}}
-                                        <span class="label"> {{uuid}} </span>
-                                    {{/if}}
-
-                                    <a id="startSession" class="btn btn-inverse" {{action 'requestUUID'}}> Start Session </a>
-                                    <p></p>
-
-                                <!-- HIDDEN FILE MANAGEMENT -->
-                                <div id="swoosh" hidden style="position:absolute; width: 100%">
-                                <table class="table">
-                                    <tr><td></td></tr>
-                                </table>
-                                <br></br>
-                                </div>
-                                <div id="files" align="left" hidden>
-                                    <br></br>
-                                    <form class="form-horizontal" role="form">
-                                        <div class="form-group">
-                                            <label for="inputPassword" class="col-sm-2 control-label">Project Name</label>
-                                            <div class="col-sm-10">
-                                                <input type="password" class="form-control" id="inputPassword" placeholder="Loading..." disabled>
-                                            </div>
-                                            </div>
-                                        </form>
-                                    <br></br>
-                                    <a id="submit" class="btn btn-inverse pull-right" {{action 'postData'}}> Submit </a>
-                                    <a id="submit" class="btn btn-inverse-red pull-right" {{action 'cancel'}}> Cancel </a>
-                                    <p class="small pull-left"> {{email}} </p>
-
-                                </div>
-                                <div class="modal fade email-notification" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-sm">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                            <br></br>
-                                            <div class="lead">Before we get started, we need to pair your email with the unique session id.</div>
-                                            <input class="form-control" id="email" placeholder="Email...." required></input>
-                                            <br></br>
-                                            <a type="button" class="btn btn-inverse-black" aria-hidden="true" {{action 'setEmail'}}>Submit</a>
-                                        </div>
-                                    </div>
-                                </div>
-                                </script>
-                            </table>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
+          </script>
+            <script type="text/x-handlebars" id="index">
+                <a id="startSession" class="btn btn-inverse" {{action 'requestUUID'}}> Start Session </a>
+                {{#if uuid}}
+                    <span class="badge badge-primary"> {{uuid}} </span>
+                {{/if}}
+                <ul style="float:left;">
+                    {{#each item in content}}
+                        <li>{{item}}</li>
+                    {{/each}}
+                </ul>
+            </script>
         </div>
 
         <!-- EMBER APPLICATION END -->
@@ -114,6 +74,19 @@
         <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
         <script type="text/javascript" src="/faye/client.js"></script>
+<<<<<<< HEAD
+        <script type="text/javascript">
+            var fclient = new Faye.Client('/faye');
+            var subscription = fclient.subscribe('/foo', function(message) {
+              console.log(JSON.stringify(message));
+            });
+
+            var send_hello = function(message) {
+              fclient.publish('/foo', {"message" : message || "hello"});
+            };
+        </script>
+=======
+>>>>>>>  style changes updated UUID request, hide session button
         <script src="js/lib/iconic.min.js"></script>
         <script src="js/lib/handlebars-1.1.2.js"></script>
         <script src="js/lib/ember-1.5.0.js"></script>

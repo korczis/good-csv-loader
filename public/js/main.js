@@ -27,7 +27,6 @@ App.IndexController = Ember.Controller.extend({
   // TODO: Add an observers that automatically checks when email is updated to see if it mataches with the seesion id.
   email: null,
   init: function(){
-
     $("#files").hide();
     var subscription = fclient.subscribe('/foo', function(message) {
       alert(JSON.stringify(message));
@@ -41,7 +40,7 @@ App.IndexController = Ember.Controller.extend({
       getUUID = {
         url: '/projects',
         error: function(xml, err, status){
-          controller.set('status', err);
+          controller.controllerFor('application').set('status', "Sorry about this..."+status);
         },
 
         method: 'POST',
