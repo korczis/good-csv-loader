@@ -3,8 +3,14 @@
 require "bundler/setup"
 require "sinatra"
 require "securerandom"
+require "gooddata"
+require "open-uri"
+require "pry"
 
 S3_ENDPOINT = "https://some_uri_here/"
+PROJECT_CREATION_TOKEN = ENV['project_token']
+GD_LOGIN = ENV['gd_login']
+GD_PASS = ENV['gd_pass']
 
 # Set public folder
 set :public_folder, 'public'
@@ -26,14 +32,21 @@ end
 put '/publications/:id' do
   uuid = params[:id]
 
-  content_type :json
+  spec = MultiJson.load(open("https://gist.githubusercontent.com/fluke777/10414368/raw/ada044a871f19449ccdd60af9637dede76ae2dd0/json_model.json") {|f| f.read}, :symbolize_keys => true)
+  model = GoodData::Model::ProjectBlueprint.from_json(spec)
+
   # Doing some stuff
-  sleep 1
-  
-  # if ok
-  content_type :json
-  status 201
-  {
-    :project_uri => "https://secure.gooddata.com/gdc/projects/#{uuid}"
-  }.to_json
+  begin
+    GoodData.logging_on
+    binding.pry
+    GoodData.connect(GD_LOGIN, GD_PASS)
+
+    project = GoodData::Model::ProjectCreator.migrate(:spec => model, :token => PROJECT_CREATION_TOKEN)
+    content_type :json
+    {
+      :project_uri => project.browser_uri
+    }.to_json
+  rescue
+    halt 500
+  end
 end
