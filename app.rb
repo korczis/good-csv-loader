@@ -43,40 +43,51 @@ class SinatraApp < Sinatra::Base
   get '/' do
     redirect '/index.html'
   end
-post '/projects' do
-  uuid = SecureRandom::uuid
-  policy = Base64.encode64(policy_document("2016-01-01T00:00:00Z",uuid)).gsub("\n","")
-  signature = Base64.encode64(
-    OpenSSL::HMAC.digest(
-        OpenSSL::Digest::Digest.new('sha1'), 
-        aws_secret_key, policy)
-    ).gsub("\n","")
-
-  project_prefix = S3_ENDPOINT + uuid
-  content_type :json
-  {
-    :id => uuid,
-    :upload_files_uri => project_prefix,
-    :upload_policy => policy,
-    :upload_signature => signature
-  }.to_json
-end
 
   post '/projects' do
     uuid = SecureRandom::uuid
+    policy = Base64.encode64(policy_document("2016-01-01T00:00:00Z",uuid)).gsub("\n","")
+    signature = Base64.encode64(
+      OpenSSL::HMAC.digest(
+          OpenSSL::Digest::Digest.new('sha1'), 
+          aws_secret_key, policy)
+      ).gsub("\n","")
+
+    project_prefix = S3_ENDPOINT + uuid
     content_type :json
     {
       :id => uuid,
-      :upload_files_uri => S3_ENDPOINT + uuid
+      :upload_files_uri => project_prefix,
+      :upload_policy => policy,
+      :upload_signature => signature
     }.to_json
   end
 
   post "/add_file" do
     FAYE_CLIENT.publish('/foo', {
       :file_added => {
-        :name => "x"
+        :filename => "x"
       }
-    })
+    }.to_json)
+  end
+
+  post '/file_upload' do
+    pp params["filename"]
+  end
+
+  post "/add_columns" do
+    FAYE_CLIENT.publish('/foo', {
+      :file_inspected => {
+        :filename => "x",
+        :columns => [
+          {
+            :name => "Id"
+          },
+          {
+            :name => "Name"
+          }]
+      }
+    }.to_json)
   end
 
   put '/publications/:id' do
@@ -99,10 +110,4 @@ end
       halt 500
     end
   end
-end
-
-
-post '/file_upload' do
-  pp params["filename"]
-  #pp params["body"]["filename"]
 end
