@@ -10,8 +10,7 @@
 <script>
     $(document).ready(function () {
         $("div#dropzone").dropzone({
-            method: 'PUT',
-            paramName: 'pic',
+            paramName: 'file',
             autoProcessQueue: true,
             clickable: true,
             maxfiles: 5,
@@ -20,50 +19,61 @@
             //acceptedMimeTypes: "image/bmp,image/gif,image/jpg,image/jpeg,image/png",
             url: 'dummy',
 
-            //init: function () {  },
-            //addedfile: function (file) {            },
-            accept: function (file, done) {
-                file.postData = [];
+            init: function () {
+                dzo = this.options;
                 $.ajax({
                     url: 'http://localhost:9292/projects',
-                    data: {name: file.name, type: file.type, size: file.size},
-                    type: 'GET',
+                    //data: {name: file.name, type: file.type, size: file.size},
+                    type: 'POST',
                     dataType: 'json',
                     success: function (response) {
-                        file.custom_status = 'ready';
-                        file.postData = response.post;
-                        file.guid = response.data.guid;
-                        file.s3 = response.post.key;
-                        $(file.previewTemplate).addClass('uploading');
-                        done();
-                    },
-                    error: function (response) {
-                        file.custom_status = 'rejected';
-
-                        if (response.responseText) {
-                            response = parseJsonMsg(response.responseText);
-                        }
-                        if (response.message) {
-                            done(response.message);
-                        } else {
-                            done('error preparing the upload');
-                        }
+                        dzo.url = response.url;
+                        dzo.formDataToSend = {
+                            key: response.prefix + "/${filename}",
+                            policy: response.policy,
+                            signature: response.signature,
+                            AWSAccessKeyId: "AKIAJ57DVWC5BAJGQCNA",
+                            acl: "private",
+                            //success_action_redirect: "https://s3.amazonaws.com/gcl-data/upload-success.html",
+                            'Content-Type': 'asdf'};
+                        //$("div#dropzone").each(function (url) { Dropzone.forElement(this).options.url = url })
+                        //file.custom_status = 'ready';
+                        //$("div#dropzone").dropzone.options.url = response.url;
+                        //this.options.url = response.url;
+                        //file.id = response.id;
+                        //file.s3 = response.post.key;
+                        //file.poli
+                        //$(file.previewTemplate).addClass('uploading');
+                        //done();
                     }
+                    /*
+                     error: function (response) {
+                     file.custom_status = 'rejected';
+
+                     if (response.responseText) {
+                     response = parseJsonMsg(response.responseText);
+                     }
+                     if (response.message) {
+                     done(response.message);
+                     } else {
+                     done('error preparing the upload');
+                     }
+                     }*/
                 });
-                this.options.url = "https://s3.amazonaws.com/gcl-data/this.options.url";
-                done();
             },
 
-        /*
+            //addedfile: function (file) {            },
+
+            // accept: function (file, done) { done(); },
+
             sending: function (file, xhr, formData) {
                 console.log(this.options);
-                $.each(file.postData, function (k, v) {
+                $.each(this.options.formDataToSend, function (k, v) {
                     formData.append(k, v);
                 });
             }
-            */
         });
-    });
+    })
 </script>
 
 <div id="dropzone">
