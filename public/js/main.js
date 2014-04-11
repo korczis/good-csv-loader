@@ -96,11 +96,12 @@ App.IndexController = Ember.ArrayController.extend({
   // TODO: Add an observers that automatically checks when email is updated to see if it mataches with the seesion id.
   email: null,
 
-//  referencesTransformer: function() {
-//    refs = this.store.find('file');
-//    this.set('references', refs.content.content);
-//    console.log(refs);
-//  }.observes('message'),
+  referencesTransformer: function() {
+    refs = this.store.find('file');
+    console.log(refs);
+    this.set('references', refs.content.content);
+    console.log(refs);
+  }.observes('message'),
 
   messageTransformer: function(){
     this._super();
