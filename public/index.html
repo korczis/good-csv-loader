@@ -45,11 +45,9 @@
                     <div class="row">
                         <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2 text-center">
 
-                        <h1 class="brand iconic">Good CSV Loader</h1>
-                            <h3 class="lead">A revolution in file management.</h3>
-                            <p>
-                             {{outlet}}
-                            </p>
+                        <h1 class="jumbo">Good CSV Loader</h1> 
+                            <p class="lead">An application so fast, the tag line couldnt keep up.</p>
+                        {{outlet}}
                         </div>
                     </div>
                       </script>
@@ -57,37 +55,32 @@
                         <div class="container">
                                 <script type="text/x-handlebars" id="index">
                                     {{#if uuid}}
-                                        <span class="label label-default"> {{uuid}} </span>
+                                        <p class="label label-default"> {{uuid}} </p>
                                     {{/if}}
 
                                     <a id="startSession" class="btn btn-inverse" {{action 'requestUUID'}}> Start Session </a>
                                     <p></p>
 
                                 <!-- FILE MANAGEMENT -->
-
+  
                                 <div id="swoosh" hidden style="position:absolute; width: 100%">
                                 <table class="table">
                                     <tr><td>
                                     </td></tr>
                                 </table>
                                 <br></br>
+                                {{#if model.length}}
+                                {{else}}
+                                    <div class="pull-right"> Load a filter...</div>
+                                {{/if}}
                                 </div>
                                 <div id="files" hidden>
+                                    <p class="small pull-right" align="center-horizantal;"> {{email}} </p>
                                     <br></br>
                                     <div class="row">
-                                        <div class="col-lg-7">
-                                            <form class="form-horizontal" role="form">
-                                            <div class="form-group">
-                                                <label for="input" class="col-sm-2 control-label">Project</label>
-                                                <div>
-                                                    <input type="password" class="form-control" id="inputPassword" placeholder="Loading..." disabled>
-
-                                                    <!-- FILE LIST -->
-                                                    {{partial 'file'}}
-
-                                                </div>
-                                                </div>
-                                            </form>
+                                        <div class="col-lg-8">
+                                            <!-- FILE LIST -->
+                                                    {{partial 'file'}}  
                                         </div>
                                         <div class="col-md-4 pull-right">
                                             <form action="/file-upload"
@@ -97,9 +90,13 @@
                                         </div>
                                     </div>
                                     <br></br>
-                                    <a id="submit" class="btn btn-inverse pull-right" {{action 'postData'}}> Submit </a>
-                                    <a id="submit" class="btn btn-inverse-red pull-right" {{action 'cancel'}}> Cancel </a>
-                                    <p class="small pull-left"> {{email}} </p>
+                                    <br></br>
+                                    
+                                     <a id="submit" class="btn btn-inverse pull-right" align="center-horizantal;" {{action 'postData'}}> Submit </a>
+                                    <a id="submit" class="btn btn-inverse-red pull-right" align="center-horizantal;" {{action 'cancel'}}> Cancel </a>
+                                    <br></br>
+
+                                    
 
                                 </div>
                                 <div class="modal fade email-notification" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
@@ -136,13 +133,12 @@
         </script>
 
         <script type="text/x-handlebars" data-template-name='file'>
-            {{#each references}}
-            
-            {{/each}}
-            <ul style="list-style-type: none;">
+
+            <ul style="list-style-type: none; width: 100%">
                 {{#each file in model}}
                     <li div="item">
                         <div class="pull-left file-header">FILE {{file.filename}}</div>
+                        {{#if file.columns}}
                         <table class="table table-hover table-responsive table-bordered well well-small">
                         {{#each column in file.columns}}
                             <tr><td>{{column.name}}</td>
@@ -152,7 +148,8 @@
                             <select {{bind-attr id=column.id}}>
                                 <option value="id">Id</option>
                                 <option value="attribute">Attribute</option>
-                                <option value="value">Value</option>
+                                <option value="value">Fact</option>
+                                <option value="value">Anchor</option>
                                 <option value="reference">Reference</option>
                             </select>
                             <div class="hidden-reference" hidden>
@@ -166,10 +163,14 @@
                             </div>
                             </td></tr>
                         {{/each}}
+                        {{else}}
+                            <small>Server has acknowledged upload, waiting for analyses.</small>
+                        {{/if}}
                         </table>
                     </li>
                 {{/each}}
             </ul>
+            
         </script>
 
         <!-- EMBER APPLICATION END -->
