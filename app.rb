@@ -10,7 +10,6 @@ require "aws-sdk"
 require "yaml"
 require 'fileutils'
 
-<<<<<<< HEAD
 #S3 upload req's
 require 'base64'
 require 'openssl'
@@ -19,8 +18,8 @@ require 'digest/sha1'
 def policy_document(date,uuid)
   return "
   {'expiration': '#{date}',
-    'conditions': [ 
-      {'bucket': '#{S3_BUCKET}'}, 
+    'conditions': [
+      {'bucket': '#{S3_BUCKET}'},
       ['starts-with', '$key', '#{uuid}/'],
       {'acl': 'private'},
       ['starts-with', '$Content-Type', ''],
@@ -36,6 +35,7 @@ S3_ENDPOINT = "https://s3.amazonaws.com/#{S3_BUCKET}"
 PROJECT_CREATION_TOKEN = ENV['project_token']
 GD_LOGIN = ENV['gd_login']
 GD_PASS = ENV['gd_pass']
+
 
 class SinatraApp < Sinatra::Base
 	before do
@@ -72,7 +72,6 @@ put '/publications/:id' do
     GoodData.logging_on
     GoodData.connect(GD_LOGIN, GD_PASS)
 
-<<<<<<< HEAD
     url = S3_ENDPOINT
     content_type :json
     {
@@ -80,19 +79,16 @@ put '/publications/:id' do
 			:prefix => uuid,
       :policy => policy,
       :signature => signature
-=======
     project = GoodData::Model::ProjectCreator.migrate(:spec => model, :token => PROJECT_CREATION_TOKEN)
     content_type :json
     {
       :project_uri => project.browser_uri
->>>>>>> 524f65a0822899c539cfdf657bee0a6914afa5cc
     }.to_json
   rescue
     halt 500
   end
 end
 
-<<<<<<< HEAD
   post "/add_file" do
     FAYE_CLIENT.publish('/foo', {
       :file_added => {
@@ -239,10 +235,3 @@ end
       halt 500
     end
   end
-=======
-
-post '/file_upload' do
-  pp params["filename"]
-  #pp params["body"]["filename"]
->>>>>>> 524f65a0822899c539cfdf657bee0a6914afa5cc
-end
