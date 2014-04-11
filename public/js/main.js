@@ -4,7 +4,7 @@ App = Ember.Application.create({
 
 // FAYE
 // NOTE: EXAMPLE -> fclient.publish('/foo', {"message" : message || "hello"});
-var fclient = new Faye.Client('/faye/client');
+var fclient = new Faye.Client('http://54.205.230.19:9292/faye');
 
 App.Router.map(function() {
   this.route("index", {path: "/"});
@@ -100,7 +100,7 @@ App.IndexController = Ember.ArrayController.extend({
     this._super();
     controller = this;
     uuid = controller.get('uuid');
-    message = this.get('message');
+    message = JSON.parse(this.get('message'));
     store = this.get('store');
 
         // NOTE: Determine CONTEXT of message.
@@ -235,6 +235,9 @@ App.IndexController = Ember.ArrayController.extend({
     tmpDELETE: function() {
       fileTransformer = this.get('fileTransformer')
       console.log(fileTransformer);
+    },
+    postData: function() {
+      alert("aaaa");
     }
   },
   renderTemplate: function() {

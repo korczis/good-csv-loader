@@ -19,10 +19,9 @@ def policy_document(date,uuid)
   return "
   {'expiration': '#{date}',
     'conditions': [ 
-      {'bucket': 'gcl-data'}, 
-      ['starts-with', '$key', 'space-test/#{uuid}'],
+      {'bucket': '#{S3_BUCKET}'}, 
+      ['starts-with', '$key', '#{uuid}/'],
       {'acl': 'private'},
-      {'success_action_redirect': 'https://s3.amazonaws.com/gcl-data/upload-success.html'},
       ['starts-with', '$Content-Type', ''],
       ['content-length-range', 0, 1073741824]
     ]
@@ -31,13 +30,19 @@ end
 
 AWS_SECRET_KEY = 'Z56zbD0F/vR88iGN56DnGcOoagadSmKRsjOTHP/e'
 
-S3_ENDPOINT = "https://gcl-data/"
+S3_BUCKET = "gcl-data"
+S3_ENDPOINT = "https://s3.amazonaws.com/#{S3_BUCKET}"
 PROJECT_CREATION_TOKEN = ENV['project_token']
 GD_LOGIN = ENV['gd_login']
 GD_PASS = ENV['gd_pass']
 FAYE_CLIENT = Faye::Client.new("http://localhost:9292/faye")
 
 class SinatraApp < Sinatra::Base
+	before do
+			response.headers["Access-Control-Allow-Origin"] = "*"
+			#response.headers["Access-Control-Allow-Methods"] = "GET, POST"
+	end
+
   # Set public folder
   set :public_folder, 'public'
   set :logging, true
@@ -60,13 +65,13 @@ class SinatraApp < Sinatra::Base
           AWS_SECRET_KEY, policy)
       ).gsub("\n","")
 
-    project_prefix = S3_ENDPOINT + uuid
+    url = S3_ENDPOINT
     content_type :json
     {
-      :id => uuid,
-      :upload_files_uri => project_prefix,
-      :upload_policy => policy,
-      :upload_signature => signature
+      :url => url,
+			:prefix => uuid,
+      :policy => policy,
+      :signature => signature
     }.to_json
   end
 
@@ -181,6 +186,24 @@ class SinatraApp < Sinatra::Base
       #  reports.each { |r| r.save };
       #end
 
+      request = {
+          "invitations" =>
+              [{
+                   "invitation" => {
+                       "content"=> {
+                           "email"=> "svarovsky@gooddata.com",
+                           "role"=> "/gdc/projects/#{project.pid}/roles/2",
+                           "firstname"=> "GoodData",
+                           "lastname"=> "",
+                           "action"=> {
+                               "setMessage"=> "Welcome to your new project"
+                           }
+                       }
+                   }
+               }]
+      }
+      GoodData.post("/gdc/projects/#{project.pid}/invitations", request)
+
       FAYE_CLIENT.publish("/#{uuid}", {
           :status => {
               :message => "Project is ready!",
@@ -198,5 +221,4 @@ class SinatraApp < Sinatra::Base
       halt 500
     end
   end
-
 end
