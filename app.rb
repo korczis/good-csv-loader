@@ -37,6 +37,10 @@ FAYE_CLIENT = Faye::Client.new("http://localhost:9292/faye")
 class SinatraApp < Sinatra::Base
   # Set public folder
   set :public_folder, 'public'
+  set :logging, true
+
+  Faye.logger = Logger.new(STDOUT)
+
 
 
   # Server root asset
@@ -63,7 +67,7 @@ class SinatraApp < Sinatra::Base
     }.to_json
   end
 
-  post "/add_file/" do
+  post "/add_file" do
     FAYE_CLIENT.publish('/foo', {
       :file_added => {
         :filename => "x"
@@ -113,19 +117,33 @@ class SinatraApp < Sinatra::Base
 
     spec = MultiJson.load(open("https://gist.githubusercontent.com/fluke777/10414368/raw/ada044a871f19449ccdd60af9637dede76ae2dd0/json_model.json") {|f| f.read}, :symbolize_keys => true)
     model = GoodData::Model::ProjectBlueprint.from_json(spec)
-
-    # Doing some stuff
     begin
       GoodData.logging_on
       GoodData.connect(GD_LOGIN, GD_PASS)
-
       project = GoodData::Model::ProjectCreator.migrate(:spec => model, :token => PROJECT_CREATION_TOKEN)
+
+      users_data = [["id", "name"], ["1", "Tomas"]]
+      regions_data = [["id", "name"], ["1", "US"]]
+      oppty_data = [["amount", "closed_date", "user_id", "region_id"], [1, "1/1/2010", "1", "1"]]
+
+      model.datasets.zip([users_data, regions_data, oppty_data]).each do |ds, data|
+        ds.upload(data, :project => project)
+      end
+
+      GoodData.with_project(project) do |p|
+        reports = model.suggest_reports
+        reports.each { |r| r.save };
+      end
+
+
       content_type :json
       {
         :project_uri => project.browser_uri
       }.to_json
+
     rescue
       halt 500
     end
   end
+
 end

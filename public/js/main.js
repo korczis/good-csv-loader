@@ -4,7 +4,7 @@ App = Ember.Application.create({
 
 // FAYE
 // NOTE: EXAMPLE -> fclient.publish('/foo', {"message" : message || "hello"});
-var fclient = new Faye.Client('/faye');
+var fclient = new Faye.Client('http://54.205.230.19:9292/faye');
 
 App.Router.map(function() {
   this.route("index", {path: "/"});
