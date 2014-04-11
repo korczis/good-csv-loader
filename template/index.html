@@ -1,27 +1,84 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>S3 POST Form</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  </head>
-  <body>
-    <form action="https://gcl-data.s3.amazonaws.com/" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="key" value="space-test/${filename}">
-      <input type="hidden" name="AWSAccessKeyId" value="AKIAJ57DVWC5BAJGQCNA">
-      <input type="hidden" name="acl" value="private">
-      <input type="hidden" name="success_action_redirect"
-      value="https://s3.amazonaws.com/gcl-data/upload-success.html">
-      <input type="hidden" name="policy"   
-      value="<POLICY_DOCUMENT>">
-      <input type="hidden" name="signature" value="<SIGNATURE>">
-      <input type="hidden" name="Content-Type" value="image/jpeg">
-      <!-- Include any additional input fields here -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script src="http://code.jquery.com/jquery-2.1.0.js"></script>
+    <script src="dropzone-3.8.4/downloads/dropzone.js"></script>
+</head>
+<body>
+<script>
+    $(document).ready(function () {
+        $("div#dropzone").dropzone({
+            paramName: 'file',
+            autoProcessQueue: true,
+            clickable: true,
+            maxfiles: 5,
+            parallelUploads: 2,
+            maxFilesize: 7, // in mb
+            //acceptedMimeTypes: "image/bmp,image/gif,image/jpg,image/jpeg,image/png",
+            url: 'dummy',
 
-      File to upload to S3:
-      <input name="file" type="file">
-      <br>
-      <input type="submit" value="Upload File to S3">
-    </form>
-  </body>
+            init: function () {
+                dzo = this.options;
+                $.ajax({
+                    url: 'http://localhost:9292/projects',
+                    //data: {name: file.name, type: file.type, size: file.size},
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function (response) {
+                        dzo.url = response.url;
+                        dzo.formDataToSend = {
+                            key: response.prefix + "/${filename}",
+                            policy: response.policy,
+                            signature: response.signature,
+                            AWSAccessKeyId: "AKIAJ57DVWC5BAJGQCNA",
+                            acl: "private",
+                            //success_action_redirect: "https://s3.amazonaws.com/gcl-data/upload-success.html",
+                            'Content-Type': 'asdf'};
+                        //$("div#dropzone").each(function (url) { Dropzone.forElement(this).options.url = url })
+                        //file.custom_status = 'ready';
+                        //$("div#dropzone").dropzone.options.url = response.url;
+                        //this.options.url = response.url;
+                        //file.id = response.id;
+                        //file.s3 = response.post.key;
+                        //file.poli
+                        //$(file.previewTemplate).addClass('uploading');
+                        //done();
+                    }
+                    /*
+                     error: function (response) {
+                     file.custom_status = 'rejected';
+
+                     if (response.responseText) {
+                     response = parseJsonMsg(response.responseText);
+                     }
+                     if (response.message) {
+                     done(response.message);
+                     } else {
+                     done('error preparing the upload');
+                     }
+                     }*/
+                });
+            },
+
+            //addedfile: function (file) {            },
+
+            // accept: function (file, done) { done(); },
+
+            sending: function (file, xhr, formData) {
+                console.log(this.options);
+                $.each(this.options.formDataToSend, function (k, v) {
+                    formData.append(k, v);
+                });
+            }
+        });
+    })
+</script>
+
+<div id="dropzone">
+    HERE
+</div>
+</body>
 </html>
 
