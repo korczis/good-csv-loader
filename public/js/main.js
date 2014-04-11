@@ -4,7 +4,7 @@ App = Ember.Application.create({
 
 // FAYE
 // NOTE: EXAMPLE -> fclient.publish('/foo', {"message" : message || "hello"});
-var fclient = new Faye.Client('http://54.205.230.19:9292/faye');
+var fclient = new Faye.Client('/faye/client');
 
 App.Router.map(function() {
   this.route("index", {path: "/"});
@@ -95,13 +95,6 @@ App.IndexController = Ember.ArrayController.extend({
   references: null,
   // TODO: Add an observers that automatically checks when email is updated to see if it mataches with the seesion id.
   email: null,
-
-  referencesTransformer: function() {
-    refs = this.store.find('file');
-    console.log(refs);
-    this.set('references', refs.content.content);
-    console.log(refs);
-  }.observes('message'),
 
   messageTransformer: function(){
     this._super();
@@ -196,7 +189,7 @@ App.IndexController = Ember.ArrayController.extend({
           $("#swoosh").show(900);
           $("#files").show();
           //TODO: Reactivate this after done testing.
-          //$('.email-notification').modal('show');
+          $('.email-notification').modal('show');
         }
       }
       // NOTE: Make request to server for UUID.
