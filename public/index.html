@@ -69,10 +69,6 @@
                                     </td></tr>
                                 </table>
                                 <br></br>
-                                {{#if model.length}}
-                                {{else}}
-                                    <div class="pull-right"> Load a filter...</div>
-                                {{/if}}
                                 </div>
                                 <div id="files" hidden>
                                     <p class="small pull-right" align="center-horizantal;"> {{email}} </p>
@@ -87,17 +83,14 @@
                                                 class="dropzone"
                                                 id="my-awesome-dropzone">
                                             </form>
+                                            <br></br>
+                                            <a id="submit" class="btn btn-inverse pull-right" align="center-horizantal; position: absolute;" {{action 'postData'}}> Submit </a>
+                                            <a id="submit" class="btn btn-inverse-red pull-right" align="center-horizantal; position: absolute;" {{action 'cancel'}}> Cancel </a>
                                         </div>
                                     </div>
-                                    <br></br>
-                                    <br></br>
-                                    
-                                     <a id="submit" class="btn btn-inverse pull-right" align="center-horizantal;" {{action 'postData'}}> Submit </a>
-                                    <a id="submit" class="btn btn-inverse-red pull-right" align="center-horizantal;" {{action 'cancel'}}> Cancel </a>
-                                    <br></br>
 
-                                    
 
+                                    <br></br>
                                 </div>
                                 <div class="modal fade email-notification" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
                                     <div class="modal-dialog modal-sm">
@@ -163,14 +156,14 @@
                             </div>
                             </td></tr>
                         {{/each}}
+                        </table>
                         {{else}}
                             <small>Server has acknowledged upload, waiting for analyses.</small>
                         {{/if}}
-                        </table>
+
                     </li>
                 {{/each}}
             </ul>
-            
         </script>
 
         <!-- EMBER APPLICATION END -->
