@@ -44,6 +44,7 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2 text-center">
+
                         <h1 class="brand iconic">Good CSV Loader</h1>
                             <h3 class="lead">A revolution in file management.</h3>
                             <p>
@@ -80,16 +81,21 @@
                                                 <label for="input" class="col-sm-2 control-label">Project</label>
                                                 <div>
                                                     <input type="password" class="form-control" id="inputPassword" placeholder="Loading..." disabled>
+
+                                                    <!-- FILE LIST -->
+
                                                     <ul style="list-style-type: none;">
                                                         {{#each file in model}}
                                                             <li>
                                                                 {{file.filename}}
-                                                                {{#if file.columns}}
-                                                                    {{this.name}}
-                                                                {{/if}}
+                                                                {{#each column in file.columns}}
+                                                                    {{column.name}} - {{column.id}}
+                                                                {{/each}}
                                                             </li>
                                                         {{/each}}
                                                     </ul>
+
+
                                                 </div>
                                                 </div>
                                             </form>
@@ -127,6 +133,13 @@
             </div>
         </div>
         </div>
+
+        <!-- CUSTOM EMBER COMPONENTS -->
+        
+        <script type="text/x-handlebars" id="components/file">
+            <h1>Component: {{title}}</h1>
+            <p>Lorem ipsum dolor sit amet.</p>
+        </script>
 
         <!-- EMBER APPLICATION END -->
 

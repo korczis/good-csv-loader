@@ -13,9 +13,47 @@ App.Router.map(function() {
   this.route("index", {path: "/"});
 });
 
-App.store = DS.Store;
+App.store = DS.Store.extend({
+  revision: 12,
+});
 
 App.ApplicationAdapter = DS.LSAdapter;
+
+DS.JSONSerializer.reopen({
+
+    serializeBelongsTo: function(record, json, relationship) {
+        var key = relationship.key,
+            belongsTo = Ember.get(record, key);
+        key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
+
+        if (relationship.options.embedded === 'always') {
+            json[key] = belongsTo.serialize();
+        }
+        else {
+            return this._super(record, json, relationship);
+        }
+    },
+    serializeHasMany: function(record, json, relationship) {
+        var key = relationship.key,
+            hasMany = Ember.get(record, key),
+            relationshipType = DS.RelationshipChange.determineRelationshipType(record.constructor, relationship);
+
+        if (relationship.options.embedded === 'always') {
+            if (hasMany && relationshipType === 'manyToNone' || relationshipType === 'manyToMany' ||
+                relationshipType === 'manyToOne') {
+
+                json[key] = [];
+                hasMany.forEach(function(item, index){
+                    json[key].push(item.serialize());
+                });
+            }
+
+        }
+        else {
+            return this._super(record, json, relationship);
+        }
+    }
+});
 
 App.IndexRoute = Ember.Route.extend({
   model: function() {
@@ -27,15 +65,17 @@ App.File = DS.Model.extend({
     filename: DS.attr('string'),
     uuid: DS.attr('string'),
     creationDate : DS.attr('date'),
-    columns: DS.hasMany('column', {async: true}),
+    columns: DS.hasMany('column', { embedded: "always"}),
 });
 
 App.Column = DS.Model.extend({
+    filename: DS.belongsTo('file'),
     name: DS.attr('string'),
 });
 
-App.IndexController = Ember.Controller.extend({
+App.IndexController = Ember.ArrayController.extend({
 
+  needs: ['index'],
   status: null,
   uuid: null,
   uuidObject: null,
@@ -44,64 +84,63 @@ App.IndexController = Ember.Controller.extend({
   // TODO: Add an observers that automatically checks when email is updated to see if it mataches with the seesion id.
   email: null,
 
-  messageController: function(){
+  messageTransformer: function(){
     this._super();
     controller = this;
+    uuid = controller.get('uuid');
     message = this.get('message');
-    files = controller.get('files');
+    store = this.get('store');
 
         // NOTE: Determine CONTEXT of message.
         if(message.file_added){
 
-            this.store.find(App.File, { filename: message.file_added.filename}).then(function(data){
-
-              if(!data.content.length){
-                var newFile = controller.store.createRecord('file', {
+            //this.store.find(App.File, message.file_added.filename).then(function(data){
+              //if(data.content.length){
+                var newFile = store.createRecord('file', {
+                  id: message.file_added.filename,
                   filename: message.file_added.filename,
-                  uuid: controller.get('uuid'),
+                  uuid: uuid,
                   creationDate: new Date()
                 });
                 newFile.save();
-              } else {
-                alert("File was already in the store: "+ message.file_added.filename);
-              }
-            });
+              //} else {
+              //  alert("File was already in the store: "+ message.file_added.filename);
+              //}
+            //});
 
         }
 
         // NOTE: Determine CONTEXT of message.
         else if (message.file_inspected){
 
-          function commitColumns(column){
-            newColumn = controller.store.createRecord('column', {
-              name: column.name,
-            });
-            record = controller.store.find(App.File, { filename: message.file_inspected.filename}).then(function(file){
-              console.log(file);
-              file.get('columns').then(function(){
-                pushObject(newColumn);
-                file.save(); console.log(newColumn);
+            var file = store.getById(App.File, message.file_inspected.filename);
+
+            function commitColumns(column){
+              newColumn = store.createRecord('column', {
+                filename: message.file_inspected.filename,
+                name: column.name,
               });
-            });
-          }
-          for(i=0;i<message.file_inspected.columns.length;i++){
-            commitColumns(message.file_inspected.columns[i])
-          }
+
+              file.get('columns').addObject(newColumn);
+              colm = file.get('columns');
+
+              console.log(colm);
+            }
+            for(i=0;i<message.file_inspected.columns.length;i++){
+               commitColumns(message.file_inspected.columns[i])
+            }
 
         }
 
   }.observes('message'),
 
   init: function(){
-    
-    
+
     controller = this;
     $("#files").hide();
     //NOTE: Listen for any messages to update the 'message' property with.
     var subscription = fclient.subscribe('/foo', function(message) {
-
         controller.set('message', message);
-
     });
   },
   actions: {
@@ -127,7 +166,8 @@ App.IndexController = Ember.Controller.extend({
           $("#startSession").hide(30);
           $("#swoosh").show(900);
           $("#files").show();
-          $('.email-notification').modal('show');
+          //TODO: Reactivate this after done testing.
+          //$('.email-notification').modal('show');
         }
       }
       // NOTE: Make request to server for UUID.
