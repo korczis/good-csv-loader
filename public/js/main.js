@@ -3,7 +3,7 @@ App = Ember.Application.create({
 });
 
 // FAYE
-var fclient = new Faye.Client('/faye');
+var fclient = new Faye.Client('http://54.205.230.19:9292/faye');
 
             var send_hello = function(message) {
                 fclient.publish('/foo', {"message" : message || "hello"});

@@ -32,11 +32,15 @@ S3_ENDPOINT = "https://gcl-data/"
 PROJECT_CREATION_TOKEN = ENV['project_token']
 GD_LOGIN = ENV['gd_login']
 GD_PASS = ENV['gd_pass']
-FAYE_CLIENT = Faye::Client.new("http://localhost/faye")
+FAYE_CLIENT = Faye::Client.new("http://localhost:9292/faye")
 
 class SinatraApp < Sinatra::Base
   # Set public folder
   set :public_folder, 'public'
+  set :logging, true
+
+  Faye.logger = Logger.new(STDOUT)
+
 
 
   # Server root asset
