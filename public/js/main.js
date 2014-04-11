@@ -186,6 +186,9 @@ App.IndexController = Ember.ArrayController.extend({
           controller.set('uuid', data.id);
           console.log(data.id);
           controller.controllerFor('application').set('uuid', data.id);
+          var subscription = fclient.subscribe('/' + data.id, function(message) {
+                controller.set('message', message);
+          });
           controller.set('S3', data.upload_files_uri);
           console.log(data);
           $("#startSession").hide(30);
