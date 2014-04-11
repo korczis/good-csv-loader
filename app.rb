@@ -67,7 +67,7 @@ class SinatraApp < Sinatra::Base
     }.to_json
   end
 
-  post "/add_file/" do
+  post "/add_file" do
     FAYE_CLIENT.publish('/foo', {
       :file_added => {
         :filename => "x"
