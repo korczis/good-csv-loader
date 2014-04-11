@@ -56,29 +56,51 @@
                         <div class="container">
                                 <script type="text/x-handlebars" id="index">
                                     {{#if uuid}}
-                                        <span class="label"> {{uuid}} </span>
+                                        <span class="label label-default"> {{uuid}} </span>
                                     {{/if}}
 
                                     <a id="startSession" class="btn btn-inverse" {{action 'requestUUID'}}> Start Session </a>
                                     <p></p>
 
-                                <!-- HIDDEN FILE MANAGEMENT -->
+                                <!-- FILE MANAGEMENT -->
+
                                 <div id="swoosh" hidden style="position:absolute; width: 100%">
                                 <table class="table">
-                                    <tr><td></td></tr>
+                                    <tr><td>
+                                    </td></tr>
                                 </table>
                                 <br></br>
                                 </div>
-                                <div id="files" align="left" hidden>
+                                <div id="files" hidden>
                                     <br></br>
-                                    <form class="form-horizontal" role="form">
-                                        <div class="form-group">
-                                            <label for="inputPassword" class="col-sm-2 control-label">Project Name</label>
-                                            <div class="col-sm-10">
-                                                <input type="password" class="form-control" id="inputPassword" placeholder="Loading..." disabled>
-                                            </div>
-                                            </div>
-                                        </form>
+                                    <div class="row">
+                                        <div class="col-lg-7">
+                                            <form class="form-horizontal" role="form">
+                                            <div class="form-group">
+                                                <label for="input" class="col-sm-2 control-label">Project</label>
+                                                <div>
+                                                    <input type="password" class="form-control" id="inputPassword" placeholder="Loading..." disabled>
+                                                    <ul style="list-style-type: none;">
+                                                        {{#each file in model}}
+                                                            <li>
+                                                                {{file.filename}}
+                                                                {{#if file.columns}}
+                                                                    {{this.name}}
+                                                                {{/if}}
+                                                            </li>
+                                                        {{/each}}
+                                                    </ul>
+                                                </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="col-md-4 pull-right">
+                                            <form action="/file-upload"
+                                                class="dropzone"
+                                                id="my-awesome-dropzone">
+                                            </form>
+                                        </div>
+                                    </div>
                                     <br></br>
                                     <a id="submit" class="btn btn-inverse pull-right" {{action 'postData'}}> Submit </a>
                                     <a id="submit" class="btn btn-inverse-red pull-right" {{action 'cancel'}}> Cancel </a>
@@ -113,10 +135,13 @@
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.10.2.min.js"><\/script>')</script>
         <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
         <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+        <script src="js/lib/dropzone.js"></script>
         <script type="text/javascript" src="/faye/client.js"></script>
         <script src="js/lib/iconic.min.js"></script>
         <script src="js/lib/handlebars-1.1.2.js"></script>
         <script src="js/lib/ember-1.5.0.js"></script>
+        <script src="js/lib/ember-data.js"></script>
+        <script src="js/lib/ember-localstorage.js"></script>
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->

@@ -71,7 +71,7 @@ class SinatraApp < Sinatra::Base
     }.to_json)
   end
 
-  post '/file_upload' do
+  post '/file-upload' do
     pp params["filename"]
   end
 
