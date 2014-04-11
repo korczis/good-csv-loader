@@ -107,7 +107,7 @@ App.IndexController = Ember.ArrayController.extend({
     this._super();
     controller = this;
     uuid = controller.get('uuid');
-    message = this.get('message');
+    message = JSON.parse(this.get('message'));
     store = this.get('store');
 
         // NOTE: Determine CONTEXT of message.
