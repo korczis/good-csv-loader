@@ -181,6 +181,24 @@ class SinatraApp < Sinatra::Base
       #  reports.each { |r| r.save };
       #end
 
+      request = {
+          "invitations" =>
+              [{
+                   "invitation" => {
+                       "content"=> {
+                           "email"=> "svarovsky@gooddata.com",
+                           "role"=> "/gdc/projects/#{project.pid}/roles/2",
+                           "firstname"=> "GoodData",
+                           "lastname"=> "",
+                           "action"=> {
+                               "setMessage"=> "Welcome to your new project"
+                           }
+                       }
+                   }
+               }]
+      }
+      GoodData.post("/gdc/projects/#{project.pid}/invitations", request)
+
       FAYE_CLIENT.publish("/#{uuid}", {
           :status => {
               :message => "Project is ready!",
