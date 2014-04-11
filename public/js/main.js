@@ -235,6 +235,9 @@ App.IndexController = Ember.ArrayController.extend({
     tmpDELETE: function() {
       fileTransformer = this.get('fileTransformer')
       console.log(fileTransformer);
+    },
+    postData: function() {
+      alert("aaaa");
     }
   },
   renderTemplate: function() {
