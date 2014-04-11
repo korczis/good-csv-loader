@@ -40,7 +40,7 @@ FAYE_CLIENT = Faye::Client.new("http://localhost:9292/faye")
 class SinatraApp < Sinatra::Base
 	before do
 			response.headers["Access-Control-Allow-Origin"] = "*"
-			#response.headers["Access-Control-Allow-Methods"] = "GET, POST"
+			response.headers["Access-Control-Allow-Methods"] = "POST"
 	end
 
   # Set public folder
@@ -65,10 +65,11 @@ class SinatraApp < Sinatra::Base
           AWS_SECRET_KEY, policy)
       ).gsub("\n","")
 
-    url = S3_ENDPOINT
+    project_prefix = S3_ENDPOINT + uuid
     content_type :json
     {
-      :url => url,
+      :id => uuid,
+      :url => S3_ENDPOINT,
 			:prefix => uuid,
       :policy => policy,
       :signature => signature
