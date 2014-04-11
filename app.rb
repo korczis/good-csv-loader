@@ -40,7 +40,7 @@ GD_PASS = ENV['gd_pass']
 class SinatraApp < Sinatra::Base
 	before do
 			response.headers["Access-Control-Allow-Origin"] = "*"
-			#response.headers["Access-Control-Allow-Methods"] = "GET, POST"
+			response.headers["Access-Control-Allow-Methods"] = "POST"
 	end
 
   # Set public folder
@@ -72,10 +72,11 @@ put '/publications/:id' do
     GoodData.logging_on
     GoodData.connect(GD_LOGIN, GD_PASS)
 
-    url = S3_ENDPOINT
+    project_prefix = S3_ENDPOINT + uuid
     content_type :json
     {
-      :url => url,
+      :id => uuid,
+      :url => S3_ENDPOINT,
 			:prefix => uuid,
       :policy => policy,
       :signature => signature
