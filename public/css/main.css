@@ -89,6 +89,17 @@ color: #333;
     background-color:#b0e0e6;
 }
 
+.file-header {
+    color: #FFFFFF;
+    border-width: 2px;
+    border-color: #999999;
+    background-color: #333333;
+    background-image: none;
+    font-weight: 500;
+    border-radius: 0;
+    width: 100%;
+}
+
 .dropzone {
     color: grey;
     background-color: #FFFFFF;
@@ -100,6 +111,7 @@ color: #333;
     border-radius: 0.5;
     border-style: dashed;
 }
+
 .btn-inverse {
     color: #FFFFFF;
     border-width: 1px;

@@ -3,11 +3,8 @@ App = Ember.Application.create({
 });
 
 // FAYE
+// NOTE: EXAMPLE -> fclient.publish('/foo', {"message" : message || "hello"});
 var fclient = new Faye.Client('/faye');
-
-            var send_hello = function(message) {
-                fclient.publish('/foo', {"message" : message || "hello"});
-            };
 
 App.Router.map(function() {
   this.route("index", {path: "/"});
@@ -17,13 +14,25 @@ App.store = DS.Store.extend({
   revision: 12,
 });
 
+App.FileView = Ember.View.extend({
+  key: function(){
+    return "ITS NOT WHAT THE KEY WAS";
+  }
+});
+
+App.FileDetailsComponent = Ember.Component.extend({
+  file: null,
+  name: null,
+  columns: null,
+});
+
 App.ApplicationAdapter = DS.LSAdapter;
 
 DS.JSONSerializer.reopen({
 
     serializeBelongsTo: function(record, json, relationship) {
         var key = relationship.key,
-            belongsTo = Ember.get(record, key);
+        belongsTo = Ember.get(record, key);
         key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
 
         if (relationship.options.embedded === 'always') {
@@ -33,6 +42,8 @@ DS.JSONSerializer.reopen({
             return this._super(record, json, relationship);
         }
     },
+
+    //NOTE: Preps the serializer for a HAS MANY >> Watch for stack loops.
     serializeHasMany: function(record, json, relationship) {
         var key = relationship.key,
             hasMany = Ember.get(record, key),
@@ -81,8 +92,15 @@ App.IndexController = Ember.ArrayController.extend({
   uuidObject: null,
   files: null,
   message: null,
+  references: null,
   // TODO: Add an observers that automatically checks when email is updated to see if it mataches with the seesion id.
   email: null,
+
+  referencesTransformer: function() {
+    refs = this.store.find('file');
+    this.set('references', refs.content.content);
+    console.log(refs);
+  }.observes('message'),
 
   messageTransformer: function(){
     this._super();
@@ -94,19 +112,24 @@ App.IndexController = Ember.ArrayController.extend({
         // NOTE: Determine CONTEXT of message.
         if(message.file_added){
 
-            //this.store.find(App.File, message.file_added.filename).then(function(data){
-              //if(data.content.length){
+            data = store.getById(App.File, message.file_added.filename);
+              if(data){
+                controller.set(status, "The server is sending files with duplicate names. If you feel this is in error, reset your storage by clicking cancel then clear storage.")
+              //} else {
+              //  alert("File was already in the store: "+ message.file_added.filename);
+              //}
+              } else {
+
                 var newFile = store.createRecord('file', {
                   id: message.file_added.filename,
                   filename: message.file_added.filename,
                   uuid: uuid,
-                  creationDate: new Date()
+                  creationDate: new Date(),
                 });
+
                 newFile.save();
-              //} else {
-              //  alert("File was already in the store: "+ message.file_added.filename);
-              //}
-            //});
+
+              }
 
         }
 
@@ -120,11 +143,13 @@ App.IndexController = Ember.ArrayController.extend({
                 filename: message.file_inspected.filename,
                 name: column.name,
               });
+              try {
+                file.get('columns').addObject(newColumn);
+                newColumn.save();
 
-              file.get('columns').addObject(newColumn);
-              colm = file.get('columns');
-
-              console.log(colm);
+              } catch (err){
+                controller.set(status, "Your local application must be refreshed: "+err);
+              }
             }
             for(i=0;i<message.file_inspected.columns.length;i++){
                commitColumns(message.file_inspected.columns[i])
@@ -206,9 +231,17 @@ App.IndexController = Ember.ArrayController.extend({
       this.set('uuid', "CLOSED "+uuid);
       $("#swoosh").hide(900);
       $("#files").hide();
+      localStorage.clear();
       $("#startSession").show();
       $("#startSession").html('New Session');
+    },
+    tmpDELETE: function() {
+      fileTransformer = this.get('fileTransformer')
+      console.log(fileTransformer);
     }
+  },
+  renderTemplate: function() {
+    this.render('file');
   }
 
 });

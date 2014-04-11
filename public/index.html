@@ -83,18 +83,7 @@
                                                     <input type="password" class="form-control" id="inputPassword" placeholder="Loading..." disabled>
 
                                                     <!-- FILE LIST -->
-
-                                                    <ul style="list-style-type: none;">
-                                                        {{#each file in model}}
-                                                            <li>
-                                                                {{file.filename}}
-                                                                {{#each column in file.columns}}
-                                                                    {{column.name}} - {{column.id}}
-                                                                {{/each}}
-                                                            </li>
-                                                        {{/each}}
-                                                    </ul>
-
+                                                    {{partial 'file'}}
 
                                                 </div>
                                                 </div>
@@ -135,10 +124,52 @@
         </div>
 
         <!-- CUSTOM EMBER COMPONENTS -->
-        
-        <script type="text/x-handlebars" id="components/file">
-            <h1>Component: {{title}}</h1>
-            <p>Lorem ipsum dolor sit amet.</p>
+
+        <script type="text/x-handlebars" id="components/file-details">
+            <table>
+            {{file}}
+            {{#each columns}}
+                <h4></h4>
+
+            {{/each}}
+            </table>
+        </script>
+
+        <script type="text/x-handlebars" data-template-name='file'>
+            {{#each references}}
+            
+            {{/each}}
+            <ul style="list-style-type: none;">
+                {{#each file in model}}
+                    <li div="item">
+                        <div class="pull-left file-header">FILE {{file.filename}}</div>
+                        <table class="table table-hover table-responsive table-bordered well well-small">
+                        {{#each column in file.columns}}
+                            <tr><td>{{column.name}}</td>
+                            <td> {{column.id}}
+                            </td>
+                            <td>
+                            <select {{bind-attr id=column.id}}>
+                                <option value="id">Id</option>
+                                <option value="attribute">Attribute</option>
+                                <option value="value">Value</option>
+                                <option value="reference">Reference</option>
+                            </select>
+                            <div class="hidden-reference" hidden>
+                                <small> Select Reference Point </small>
+                                <select {{bind-attr id=column.id}}>
+                                    <option value="id">Id</option>
+                                    <option value="attribute">Attribute</option>
+                                    <option value="value">Value</option>
+                                    <option value="reference">Reference</option>
+                                </select>
+                            </div>
+                            </td></tr>
+                        {{/each}}
+                        </table>
+                    </li>
+                {{/each}}
+            </ul>
         </script>
 
         <!-- EMBER APPLICATION END -->
