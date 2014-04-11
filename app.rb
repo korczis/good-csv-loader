@@ -63,7 +63,7 @@ class SinatraApp < Sinatra::Base
     }.to_json
   end
 
-  post "/add_file" do
+  post "/add_file/" do
     FAYE_CLIENT.publish('/foo', {
       :file_added => {
         :filename => "x"
@@ -71,9 +71,28 @@ class SinatraApp < Sinatra::Base
     }.to_json)
   end
 
-  post '/file_upload' do
-    pp params["filename"]
+  post '/file_upload/:id' do
+    id = params[:id]
+    filename = params["filename"]
+    FAYE_CLIENT.publish("/#{id}", {
+      :file_added => {
+        :filename => filename
+      }
+    }.to_json)
   end
+
+  post '/file_columns/:id' do
+    id = params[:id]
+    filename = params["filename"]
+    columns = params["columns"]
+    FAYE_CLIENT.publish("/#{id}", {
+      :file_inspected => {
+        :filename => filename,
+        :columns => columns
+      }
+    }.to_json)
+  end
+  
 
   post "/add_columns" do
     FAYE_CLIENT.publish('/foo', {
