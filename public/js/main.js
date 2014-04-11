@@ -237,7 +237,20 @@ App.IndexController = Ember.ArrayController.extend({
       console.log(fileTransformer);
     },
     postData: function() {
-      alert("aaaa");
+      controller = this;
+      uuid = controller.get('uuid');
+      newProject = {
+        url: '/publications/'+uuid,
+        method: 'PUT',
+        error: function(xml, err, status){
+          controller.set('status', err);
+        },
+        success: function(data){
+          console.log(data);
+          controller.set('status', null);
+        }
+      }
+      $.ajax(newProject);
     }
   },
   renderTemplate: function() {
