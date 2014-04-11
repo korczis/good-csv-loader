@@ -6,6 +6,9 @@ require "securerandom"
 require "gooddata"
 require "open-uri"
 require "pry"
+require "aws-sdk"
+require "yaml"
+require 'fileutils'
 
 #S3 upload req's
 require 'base64'
@@ -114,26 +117,76 @@ class SinatraApp < Sinatra::Base
 
   put '/publications/:id' do
     uuid = params[:id]
+    FileUtils::mkdir_p "temp/#{uuid}/"
 
-    spec = MultiJson.load(open("https://gist.githubusercontent.com/fluke777/10414368/raw/ada044a871f19449ccdd60af9637dede76ae2dd0/json_model.json") {|f| f.read}, :symbolize_keys => true)
+    AWS.config(YAML.load_file("config.yml"))
+    s3 = AWS::S3.new()
+    stage_bucket = s3.buckets["gcl-data-stage"]
+
+    spec = MultiJson.load(open("https://gist.githubusercontent.com/adriantoman/239655ae32e7c23ad332/raw/60dc2f82581a6c207db93f07607ef4104f33df23/gistfile1.txt") {|f| f.read}, :symbolize_keys => true)
     model = GoodData::Model::ProjectBlueprint.from_json(spec)
     begin
+      GD_LOGIN = ENV['gd_login']
+      GD_PASS = ENV['gd_pass']
+
       GoodData.logging_on
-      GoodData.connect(GD_LOGIN, GD_PASS)
+      GoodData.connect(GD_LOGIN, GD_PASS,{:webdav_server => "https://na1-di.gooddata.com"})
+
       project = GoodData::Model::ProjectCreator.migrate(:spec => model, :token => PROJECT_CREATION_TOKEN)
 
-      users_data = [["id", "name"], ["1", "Tomas"]]
-      regions_data = [["id", "name"], ["1", "US"]]
-      oppty_data = [["amount", "closed_date", "user_id", "region_id"], [1, "1/1/2010", "1", "1"]]
+      FAYE_CLIENT.publish("/#{uuid}", {
+          :status => {
+              :message => "The model created. Starting download from S3"
+          }
+      }.to_json)
 
-      model.datasets.zip([users_data, regions_data, oppty_data]).each do |ds, data|
-        ds.upload(data, :project => project)
+      GoodData.use project
+      files_data = []
+
+      spec[:datasets].each do |ds|
+        filename = ds[:filename].split("/").last
+        File.open("temp/#{uuid}/#{filename}", 'wb') do |file|
+          stage_bucket.objects[ds[:filename]].read do |chunk|
+            file.write(chunk)
+          end
+        end
+        schema =  model.datasets.find{|s| s.name == ds[:name] }
+
+        FAYE_CLIENT.publish("/#{uuid}", {
+            :status => {
+                :message => "Donwload of dataset #{ds[:name]} finished, starting upload to GoodData"
+            }
+        }.to_json)
+
+        schema.upload("temp/" + ds[:filename],:project => project)
+
+        FAYE_CLIENT.publish("/#{uuid}", {
+            :status => {
+                :message => "Upload of dataset #{ds[:name]} to GoodData has finished!"
+            }
+        }.to_json)
       end
 
-      GoodData.with_project(project) do |p|
-        reports = model.suggest_reports
-        reports.each { |r| r.save };
-      end
+      #users_data = [["id", "name"], ["1", "Tomas"]]
+      #regions_data = [["id", "name"], ["1", "US"]]
+      #oppty_data = [["amount", "closed_date", "user_id", "region_id"], [1, "1/1/2010", "1", "1"]]
+
+      #model.datasets.zip(files_data).each do |ds, data|
+      #  ds.upload(data, :project => project)
+      #end
+
+
+      #GoodData.with_project(project) do |p|
+      #  reports = model.suggest_reports
+      #  reports.each { |r| r.save };
+      #end
+
+      FAYE_CLIENT.publish("/#{uuid}", {
+          :status => {
+              :message => "Project is ready!",
+              :url => project.browser_uri
+          }
+      }.to_json)
 
 
       content_type :json
@@ -141,7 +194,7 @@ class SinatraApp < Sinatra::Base
         :project_uri => project.browser_uri
       }.to_json
 
-    rescue
+    rescue => e
       halt 500
     end
   end
