@@ -1,4 +1,4 @@
-:q:require 'bundler/setup'
+require 'bundler/setup'
 require 'faye'
 
 Faye::WebSocket.load_adapter('thin')
