@@ -35,6 +35,11 @@ GD_PASS = ENV['gd_pass']
 FAYE_CLIENT = Faye::Client.new("http://localhost/faye")
 
 class SinatraApp < Sinatra::Base
+	before do
+			response.headers["Access-Control-Allow-Origin"] = "*"
+			response.headers["Access-Control-Allow-Methods"] = "POST"
+	end
+
   # Set public folder
   set :public_folder, 'public'
 
